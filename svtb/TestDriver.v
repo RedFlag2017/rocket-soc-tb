@@ -1,17 +1,20 @@
 // See LICENSE.SiFive for license details.
 //VCS coverage exclude_file
+import uvm_pkg::*;
+
+
 `ifndef RESET_DELAY
  `define RESET_DELAY 777.7
 `endif
 
 
-`define INIT_MEM_DELAY 100
 
-`define DRAM_HIR DUT.mem.srams.mem.mem_ext
+`define DRAM_HIR TestDriver.DUT.mem.srams.mem.mem_ext
 `define BOOTROM_HIR TestDriver.DUT.top.bootrom //.rom[0:4095]
 
 
 `include "uart_mon.sv"
+`include "test/testcase_list.svh"
 
 module TestDriver;
 
@@ -124,120 +127,7 @@ module TestDriver;
   
   
   
-bit [`BOOTROM_WIDTH - 1 :0] rom_content[0:`BOOTROM_DEPTH -1];
 
-bit [`MEM_WIDTH -1      :0] mem_content[0:`MEM_DEPTH_TB -1];
-
-
-
-//Initial BOOTROM and SRAM
-initial begin
-	int rom_depth_idx = 0;
-	int ram_depth_idx = 0;
-	int ram_depth_idx_lsb26 = 0;  
-	int fp;
-
-
-
-	string boot_rom_hex_file;
-	string out_sram_hex_file;
-
-	
-
-	
-
-  #`INIT_MEM_DELAY;
-//////////////////////////////////////////////////////////////////////
-///  Write BootROM
-/////////////////////////////////////////////////////////////////////
-	if ($value$plusargs("BOOT_ROM_HEX_FILE=%s",boot_rom_hex_file))
-	begin
-			$display("boot_rom_hex_file =%s\n",boot_rom_hex_file);
-	end
-	$readmemh(boot_rom_hex_file  ,rom_content);
-	for(rom_depth_idx = 0;rom_depth_idx <= `BOOTROM_DEPTH-1;rom_depth_idx++)
-	begin
-		`BOOTROM_HIR.rom[rom_depth_idx] = rom_content[rom_depth_idx];		
-	end	
-
-
-
-//////////////////////////////////////////////////////////////////////
-///  Write SRAM  @0x8000_0000
-/////////////////////////////////////////////////////////////////////
-
-
-	if ($value$plusargs("OUT_SRAM_HEX_FILE=%s",out_sram_hex_file))
-	begin
-			$display("out_sram_hex_file =%s\n",out_sram_hex_file);
-			// Check wheather the hex  exist
-		  if($fopen(out_sram_hex_file,"r") == null)
-				$fatal();
-	end
-
-	$readmemh(out_sram_hex_file,mem_content);
-	
-	for(ram_depth_idx = 0;ram_depth_idx < 10;ram_depth_idx++)
-	begin
-		$display("mem_content[%x]=%x\n",ram_depth_idx,mem_content[ram_depth_idx]);
-	end	
-
-
-
-	for(ram_depth_idx = 0;ram_depth_idx <= `MEM_DEPTH_TB-1;ram_depth_idx++)
-	begin
-		ram_depth_idx_lsb26 = ram_depth_idx[25:0];
-		case (ram_depth_idx[27:26])
-			2'b00: begin
-				`DRAM_HIR.mem_0_0.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][7 : 0 ];		
-				`DRAM_HIR.mem_0_1.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][15: 8 ];		
-				`DRAM_HIR.mem_0_2.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][23: 16];		
-				`DRAM_HIR.mem_0_3.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][31: 24];		
-				`DRAM_HIR.mem_0_4.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][39: 32];		
-				`DRAM_HIR.mem_0_5.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][47: 40];		
-				`DRAM_HIR.mem_0_6.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][55: 48];		
-				`DRAM_HIR.mem_0_7.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][63: 56];				
-			end
-			2'b01: begin
-				`DRAM_HIR.mem_1_0.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][7 : 0 ];		
-				`DRAM_HIR.mem_1_1.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][15: 8 ];		
-				`DRAM_HIR.mem_1_2.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][23: 16];		
-				`DRAM_HIR.mem_1_3.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][31: 24];		
-				`DRAM_HIR.mem_1_4.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][39: 32];		
-				`DRAM_HIR.mem_1_5.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][47: 40];		
-				`DRAM_HIR.mem_1_6.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][55: 48];		
-				`DRAM_HIR.mem_1_7.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][63: 56];						
-			end
-			2'b10: begin
-				`DRAM_HIR.mem_2_0.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][7 : 0 ];		
-				`DRAM_HIR.mem_2_1.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][15: 8 ];		
-				`DRAM_HIR.mem_2_2.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][23: 16];		
-				`DRAM_HIR.mem_2_3.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][31: 24];		
-				`DRAM_HIR.mem_2_4.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][39: 32];		
-				`DRAM_HIR.mem_2_5.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][47: 40];		
-				`DRAM_HIR.mem_2_6.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][55: 48];		
-				`DRAM_HIR.mem_2_7.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][63: 56];					
-			end
-			2'b11: begin
-				`DRAM_HIR.mem_3_0.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][7 : 0 ];		
-				`DRAM_HIR.mem_3_1.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][15: 8 ];		
-				`DRAM_HIR.mem_3_2.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][23: 16];		
-				`DRAM_HIR.mem_3_3.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][31: 24];		
-				`DRAM_HIR.mem_3_4.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][39: 32];		
-				`DRAM_HIR.mem_3_5.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][47: 40];		
-				`DRAM_HIR.mem_3_6.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][55: 48];		
-				`DRAM_HIR.mem_3_7.ram[ram_depth_idx_lsb26] = mem_content[ram_depth_idx_lsb26][63: 56];						
-			end
-			default: begin 
-					$display("RAM ADDR ERROR!!!") ;
-					$finish();
-			end
-		endcase
-	  
-	end	
-
-	
-end
 
 wire clk_uart_mon ;
 wire valid_1_uart_mon ;
@@ -257,5 +147,11 @@ uart_mon u_uart_mon(
 .valid_2    (  valid_2_uart_mon ),
 .data       (  data_uart_mon    ));  
                     
-                    
+ 
+initial begin
+   uvm_top.enable_print_topology = 1;
+   run_test();
+end   
+
+                 
 endmodule

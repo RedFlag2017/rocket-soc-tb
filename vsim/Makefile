@@ -6,7 +6,8 @@ CASE_NAME := test_demo
 BOOT_ROM_HEX_FILE   = ../bootrom/bootrom.rv64.hex
 OUT_SRAM_HEX_FILE = ../case/${CASE_NAME}.hex
 
-
+verbosity = UVM_HIGH
+uvm_ver = uvm-1.2
 
 
 #########################################################################################
@@ -75,13 +76,15 @@ VCS_NONCC_OPTS = \
 	+define+CLOCK_PERIOD=1.0 \
 	$(sim_vsrcs) \
 	-lca -debug_access+all -kdb  \
+	-ntb_opts ${uvm_ver} \
 	+libext+.v
 
 VCS_OPTS = -notice -line  $(VCS_NONCC_OPTS)
 
 
 SIM_FLAGS = +BOOT_ROM_HEX_FILE=${BOOT_ROM_HEX_FILE} \
-		    +OUT_SRAM_HEX_FILE=${OUT_SRAM_HEX_FILE}
+		    +OUT_SRAM_HEX_FILE=${OUT_SRAM_HEX_FILE} \
+		    +UVM_TESTNAME=${CASE_NAME}
             
 
 #########################################################################################

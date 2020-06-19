@@ -10,8 +10,8 @@ CC     =$(RISCV)/bin/riscv64-unknown-elf-gcc
 OBJCOPY=$(RISCV)/bin/riscv64-unknown-elf-objcopy
 OBJDUMP=$(RISCV)/bin/riscv64-unknown-elf-objdump
 #CFLAGS=-march=rv64imac -mcmodel=medany -O0 -std=gnu11 -Wall -nostartfiles 
-CFLAGS=-march=rv64gc -mcmodel=medany -O0 -std=gnu11 -Wall -nostartfiles 
-CFLAGS+= -fno-common -g -DENTROPY=0 -mabi=lp64 -DNONSMP_HART=0  
+CFLAGS=-march=rv64g -mcmodel=medany -O0 -std=gnu11 -Wall -nostartfiles 
+CFLAGS+= -fno-common -g -DENTROPY=0 -mabi=lp64d -DNONSMP_HART=0  
 CFLAGS+= -I $(INCLUDE_DIR) -I $(INCLUDE_DIR)/devices -I. -I $(COMMON_DIR) 
 #LFLAGS=-static -nostdlib -L ./linker -T memboot.elf.lds
 LFLAGS=-static   -L ./linker -T memboot.elf.lds
